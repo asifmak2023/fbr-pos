@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ProductFormDialog } from './product-form-dialog';
+import { ProductFormDialog } from './product-form-dialog.component';
 
 describe('ProductFormDialog', () => {
   let component: ProductFormDialog;

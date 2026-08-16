@@ -1,0 +1,76 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Edit Product' : 'Add Product' }}</h2>
+<mat-dialog-content>
+  <form #productForm="ngForm">
+    <div class="form-row">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>SKU</mat-label>
+        <input matInput [(ngModel)]="product.sku" name="sku" required>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Name</mat-label>
+        <input matInput [(ngModel)]="product.name" name="name" required>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Description</mat-label>
+        <input matInput [(ngModel)]="product.description" name="description">
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Category</mat-label>
+        <input matInput [(ngModel)]="product.category" name="category">
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Selling Price (PKR)</mat-label>
+        <input matInput type="number" [(ngModel)]="product.selling_price" name="selling_price">
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Quantity</mat-label>
+        <input matInput type="number" [(ngModel)]="product.quantity" name="quantity">
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>HS Code</mat-label>
+        <input matInput [(ngModel)]="product.hs_code" name="hs_code">
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Tax Rate</mat-label>
+        <input matInput [(ngModel)]="product.tax_rate" name="tax_rate">
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>UOM</mat-label>
+        <input matInput [(ngModel)]="product.uom" name="uom">
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="error" class="error-message">{{ error }}</div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="loading">
+    {{ loading ? 'Saving...' : 'Save' }}
+  </button>
+</mat-dialog-actions>

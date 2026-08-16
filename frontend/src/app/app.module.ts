@@ -13,13 +13,21 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './auth/login/login.component';
 
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { ProductListComponent } from './product-list/product-list.component';
+import { ProductFormDialogComponent } from './product-form-dialog/product-form-dialog.component';
+
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
-  declarations: [
+    declarations: [
     AppComponent,
-    LoginComponent
+    LoginComponent,
+    DashboardComponent,
+    ProductListComponent,
+    ProductFormDialogComponent   // <-- ADD THIS
   ],
   imports: [
     BrowserModule,
@@ -32,7 +40,8 @@ import { MatIconModule } from '@angular/material/icon';
     MatInputModule,
     MatButtonModule,
     MatTableModule,
-    MatIconModule
+    MatIconModule,
+    MatDialogModule 
   ],
   providers: [],
   bootstrap: [AppComponent]
