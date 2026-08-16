@@ -1,0 +1,45 @@
+<div class="product-container">
+  <div class="header">
+    <h2>Products</h2>
+    <button mat-raised-button color="primary" (click)="openAddProduct()">
+      + Add Product
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">Loading products...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <table class="product-table" *ngIf="!loading && products.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>SKU</th>
+        <th>Name</th>
+        <th>Price (PKR)</th>
+        <th>Stock</th>
+        <th>HS Code</th>
+        <th>Tax</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let product of products">
+        <td>{{ product.id }}</td>
+        <td>{{ product.sku }}</td>
+        <td>{{ product.name }}</td>
+        <td>{{ product.selling_price | number }}</td>
+        <td>{{ product.quantity }}</td>
+        <td>{{ product.hs_code || '-' }}</td>
+        <td>{{ product.tax_rate || '-' }}</td>
+        <td>
+          <button class="btn-edit" (click)="editProduct(product.id)">Edit</button>
+          <button class="btn-delete" (click)="deleteProduct(product.id)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!loading && products.length === 0" class="no-products">
+    No products found. Add your first product!
+  </div>
+</div>
