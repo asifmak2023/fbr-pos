@@ -39,7 +39,7 @@ def create_sale(
         customer_registration_type=sale_data.get("customer_registration_type", "Unregistered"),
         payment_method=sale_data.get("payment_method", "Cash"),
         discount_amount=sale_data.get("discount_amount", 0),
-        created_by=current_user.id,
+        created_by=current_user["id"],
         status="Completed"
     )
     db.add(new_sale)
