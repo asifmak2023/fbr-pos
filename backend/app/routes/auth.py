@@ -37,6 +37,15 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
 @router.get("/me")
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    print(f"🔍 Received token: {token[:20]}...")  # <-- ADD THIS
+    payload = decode_token(token)
+    if not payload:
+        print("❌ Token decode failed")  # <-- ADD THIS
+        raise HTTPException(status_code=401, detail="Invalid token")
+    # ... rest remains
+    
+@router.get("/me")
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     payload = decode_token(token)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid token")

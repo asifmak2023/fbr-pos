@@ -1,0 +1,83 @@
+<div class="product-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Products</h1>
+      <p class="subtitle">Manage your product inventory</p>
+    </div>
+    <button class="btn-primary" (click)="openAddProduct()">
+      + Add Product
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading products...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error-state">
+    <span>⚠️ {{ error }}</span>
+  </div>
+
+  <!-- Product Table -->
+  <div class="product-card" *ngIf="!loading && products.length > 0">
+    <div class="table-container">
+      <table class="professional-table">
+        <thead>
+          <tr>
+            <th style="width: 40%;">Product</th>
+            <th style="width: 15%;">SKU</th>
+            <th style="width: 15%;">Price</th>
+            <th style="width: 15%;">Stock</th>
+            <th style="width: 15%;" class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of products">
+            <td>
+              <div class="product-cell">
+                <div class="product-avatar">📦</div>
+                <div>
+                  <div class="product-name">{{ product.name || 'Unnamed' }}</div>
+                  <div class="product-meta" *ngIf="product.category">{{ product.category }}</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="sku-tag">{{ product.sku || '—' }}</span></td>
+            <td><strong>PKR {{ product.selling_price || 0 | number }}</strong></td>
+            <td>
+              <span class="stock-badge" [class.low-stock]="product.quantity <= 5">
+                {{ product.quantity || 0 }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn-icon btn-edit" (click)="editProduct(product.id)" title="Edit">
+                  ✏️
+                </button>
+                <button class="btn-icon btn-delete" (click)="deleteProduct(product.id)" title="Delete">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Simple pagination -->
+    <div class="table-footer">
+      <span>Showing {{ products.length }} products</span>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && products.length === 0" class="empty-state">
+    <span class="empty-icon">📭</span>
+    <h3>No products yet</h3>
+    <p>Start by adding your first product to inventory.</p>
+    <button class="btn-primary" (click)="openAddProduct()">Add Product</button>
+  </div>
+</div>

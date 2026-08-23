@@ -3,10 +3,10 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ProductService, Product } from '../services/product.service';
 
 @Component({
+  standalone: false,
   selector: 'app-product-form-dialog',
   templateUrl: './product-form-dialog.component.html',
   styleUrls: ['./product-form-dialog.component.scss'],
-  standalone: false
 })
 export class ProductFormDialogComponent {
   product: Partial<Product> = {

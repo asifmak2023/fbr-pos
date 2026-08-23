@@ -1,45 +1,44 @@
 <div class="product-container">
-  <div class="header">
-    <h2>Products</h2>
-    <button mat-raised-button color="primary" (click)="openAddProduct()">
-      + Add Product
-    </button>
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Products</h1>
+      <p class="subtitle">Manage your product inventory</p>
+    </div>
+    <button class="btn-primary" (click)="openAddProduct()">+ Add Product</button>
   </div>
 
-  <div *ngIf="loading" class="loading">Loading products...</div>
-  <div *ngIf="error" class="error">{{ error }}</div>
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-state">Loading...</div>
 
-  <table class="product-table" *ngIf="!loading && products.length > 0">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>SKU</th>
-        <th>Name</th>
-        <th>Price (PKR)</th>
-        <th>Stock</th>
-        <th>HS Code</th>
-        <th>Tax</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let product of products">
-        <td>{{ product.id }}</td>
-        <td>{{ product.sku }}</td>
-        <td>{{ product.name }}</td>
-        <td>{{ product.selling_price | number }}</td>
-        <td>{{ product.quantity }}</td>
-        <td>{{ product.hs_code || '-' }}</td>
-        <td>{{ product.tax_rate || '-' }}</td>
-        <td>
-          <button class="btn-edit" (click)="editProduct(product.id)">Edit</button>
-          <button class="btn-delete" (click)="deleteProduct(product.id)">Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- Error -->
+  <div *ngIf="error" class="error-state">{{ error }}</div>
 
-  <div *ngIf="!loading && products.length === 0" class="no-products">
-    No products found. Add your first product!
+  <!-- Product Cards (FAST) -->
+  <div *ngIf="!loading && products.length > 0" class="product-grid">
+    <div *ngFor="let product of products; trackBy: trackById" class="product-item">
+      <div class="product-icon">📦</div>
+      <div class="product-info">
+        <div class="product-name">{{ product.name || 'Unnamed' }}</div>
+        <div class="product-sku">SKU: {{ product.sku || '—' }}</div>
+      </div>
+      <div class="product-price">PKR {{ product.selling_price || 0 | number }}</div>
+      <div class="product-stock">
+        <span class="stock-badge" [class.low-stock]="product.quantity <= 5">
+          {{ product.quantity || 0 }}
+        </span>
+      </div>
+      <div class="product-actions">
+        <button class="btn-icon btn-edit" (click)="editProduct(product.id)">✏️</button>
+        <button class="btn-icon btn-delete" (click)="deleteProduct(product.id)">🗑️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!loading && products.length === 0" class="empty-state">
+    <span>📭</span>
+    <h3>No products yet</h3>
+    <button class="btn-primary" (click)="openAddProduct()">Add Product</button>
   </div>
 </div>

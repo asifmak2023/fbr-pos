@@ -1,0 +1,35 @@
+How to Start the FBR POS System
+Before you start:
+Make sure XAMPP is running with MySQL started (green dot next to MySQL).
+Terminal 1: Backend (FastAPI)
+Open a new terminal in VS Code and run these commands in order:
+powershell
+cd K:\fbr-pos
+.\venv\Scripts\Activate.ps1
+cd backend
+uvicorn app.main:app --reload
+Wait for: Application startup complete.
+Terminal 2: Frontend (Angular)
+Open another new terminal in VS Code and run these commands in order:
+powershell
+cd K:\fbr-pos\frontend
+npx ng serve
+Wait for: ? Compiled successfully.
+After both are running:
+1. Open http://localhost:4200/login in your browser.
+2. Log in with admin / admin123.
+3. Start working!
+If you get an execution policy error (Windows only):
+Before activating the virtual environment, run:
+powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+Then run .\venv\Scripts\Activate.ps1 again.
+Quick Summary (TL;DR)
+TerminalCommandsBackendcd K:\fbr-pos ? .\venv\Scripts\Activate.ps1 ? cd backend ?
+uvicorn app.main:app --reloadFrontendcd K:\fbr-pos\frontend ? npx ng servePorts:
+* Backend: http://localhost:8000
+* Frontend: http://localhost:4200
+Stop the servers:
+* Press Ctrl + C in each terminal.
+When you restart VS Code, just open two terminals and follow these steps. ?
+

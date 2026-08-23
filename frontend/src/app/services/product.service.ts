@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 export interface Product {
   id: number;
   sku: string;
+  barcode?: string;
   name: string;
   description?: string;
   category?: string;
@@ -21,7 +22,7 @@ export interface Product {
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'http://localhost:8000/api/v1/products';
+  private apiUrl = 'http://localhost:8000/api/v1/products/';   // ✅ ADD TRAILING SLASH
 
   constructor(private http: HttpClient) {}
 

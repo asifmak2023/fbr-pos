@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ProductService, Product } from '../services/product.service';
-
 import { MatDialog } from '@angular/material/dialog';
 import { ProductFormDialogComponent } from '../product-form-dialog/product-form-dialog.component';
 
@@ -14,12 +13,12 @@ export class ProductListComponent implements OnInit {
   products: Product[] = [];
   loading: boolean = true;
   error: string = '';
-  displayedColumns: string[] = ['id', 'sku', 'name', 'selling_price', 'quantity', 'actions'];
 
   constructor(
-  private productService: ProductService,
-  private dialog: MatDialog
-) {}
+    private productService: ProductService,
+    private dialog: MatDialog,
+    private cdr: ChangeDetectorRef   // <-- ADD THIS
+  ) {}
 
   ngOnInit(): void {
     this.loadProducts();
@@ -27,20 +26,57 @@ export class ProductListComponent implements OnInit {
 
   loadProducts(): void {
     this.loading = true;
+    this.error = '';
+    
     this.productService.getProducts().subscribe({
       next: (data) => {
+        console.log('Products received:', data);
         this.products = data;
         this.loading = false;
+        this.cdr.detectChanges();   // <-- FORCE VIEW UPDATE
       },
       error: (err) => {
-        this.error = 'Failed to load products';
+        console.error('Error loading products:', err);
+        this.error = 'Failed to load products. Please try again.';
         this.loading = false;
-        console.error(err);
+        this.cdr.detectChanges();   // <-- FORCE VIEW UPDATE
       }
     });
   }
 
-  
+  openAddProduct(): void {
+    const dialogRef = this.dialog.open(ProductFormDialogComponent, {
+      width: '550px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadProducts();
+      }
+    });
+  }
+
+  editProduct(id: number): void {
+    this.productService.getProduct(id).subscribe({
+      next: (product) => {
+        const dialogRef = this.dialog.open(ProductFormDialogComponent, {
+          width: '550px',
+          data: { product }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            this.loadProducts();
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error fetching product:', err);
+        alert('Failed to load product details.');
+      }
+    });
+  }
 
   deleteProduct(id: number): void {
     if (confirm('Are you sure you want to delete this product?')) {
@@ -49,40 +85,14 @@ export class ProductListComponent implements OnInit {
           this.products = this.products.filter(p => p.id !== id);
         },
         error: (err) => {
-          alert('Failed to delete product');
-          console.error(err);
+          console.error('Error deleting product:', err);
+          alert('Failed to delete product.');
         }
       });
     }
   }
 
-  openAddProduct(): void {
-  const dialogRef = this.dialog.open(ProductFormDialogComponent, {
-    width: '500px',
-    data: {}
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-    if (result) {
-      this.loadProducts();
-    }
-  });
+  trackById(index: number, product: Product): number {
+    return product.id;
+  }
 }
-
-editProduct(id: number): void {
-  this.productService.getProduct(id).subscribe(product => {
-    const dialogRef = this.dialog.open(ProductFormDialogComponent, {
-      width: '500px',
-      data: { product }
-    });
-
-  dialogRef.afterClosed().subscribe(result => {
-    if (result) {
-      this.loadProducts();
-    }
-   });
-  });
-}
-
-}
-

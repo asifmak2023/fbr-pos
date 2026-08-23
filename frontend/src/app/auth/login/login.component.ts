@@ -3,10 +3,10 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
+  standalone: false,
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
-  standalone: false   // <-- ADD THIS LINE
 })
 export class LoginComponent {
   username: string = '';

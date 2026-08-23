@@ -8,26 +8,24 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './auth/login/login.component';
-
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ProductListComponent } from './product-list/product-list.component';
 import { ProductFormDialogComponent } from './product-form-dialog/product-form-dialog.component';
-
-import { MatTableModule } from '@angular/material/table';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDialogModule } from '@angular/material/dialog';
+import { PosComponent } from './pos/pos.component';
 
 @NgModule({
-    declarations: [
+  declarations: [
     AppComponent,
     LoginComponent,
     DashboardComponent,
-    ProductListComponent,
-    ProductFormDialogComponent   // <-- ADD THIS
+    ProductListComponent,        // <-- ADD THIS BACK
+    ProductFormDialogComponent,  // <-- KEEP 
+    PosComponent   // <-- ADD THIS
   ],
   imports: [
     BrowserModule,
@@ -39,9 +37,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatTableModule,
-    MatIconModule,
-    MatDialogModule 
+    MatDialogModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
