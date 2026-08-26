@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ProductService, Product } from '../services/product.service';
 import { SaleService, SaleCreate } from '../services/sale.service';
 import { Router } from '@angular/router';
@@ -10,15 +10,10 @@ import { Router } from '@angular/router';
   standalone: false
 })
 export class PosComponent implements OnInit {
-  // Product search
   searchTerm: string = '';
   products: Product[] = [];
   filteredProducts: Product[] = [];
-
-  // Shopping cart
   cartItems: { product: Product, quantity: number, unit_price: number }[] = [];
-
-  // Customer info
   customerName: string = '';
   customerPhone: string = '';
   customerNTN: string = '';
@@ -26,20 +21,17 @@ export class PosComponent implements OnInit {
   customerRegistrationType: string = 'Unregistered';
   paymentMethod: string = 'Cash';
   discountAmount: number = 0;
-
-  // Totals
   subtotal: number = 0;
   taxAmount: number = 0;
   grandTotal: number = 0;
-
-  // UI state
   loading: boolean = false;
   error: string = '';
 
   constructor(
     private productService: ProductService,
     private saleService: SaleService,
-    public router: Router
+    public router: Router,
+    private cdr: ChangeDetectorRef   // <-- ADD THIS
   ) {}
 
   ngOnInit(): void {
@@ -51,12 +43,14 @@ export class PosComponent implements OnInit {
       next: (data) => {
         console.log('✅ POS Products received:', data);
         this.products = data;
-        this.filteredProducts = data;  // <-- CRITICAL
+        this.filteredProducts = data;
+        this.cdr.detectChanges();   // <-- FORCE VIEW UPDATE
         console.log('✅ filteredProducts set to:', this.filteredProducts.length, 'items');
       },
       error: (err) => {
         console.error('Error loading products:', err);
         this.error = 'Failed to load products';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -64,13 +58,14 @@ export class PosComponent implements OnInit {
   searchProducts(): void {
     if (!this.searchTerm.trim()) {
       this.filteredProducts = this.products;
-      return;
+    } else {
+      const term = this.searchTerm.toLowerCase();
+      this.filteredProducts = this.products.filter(p =>
+        p.name.toLowerCase().includes(term) ||
+        p.sku.toLowerCase().includes(term)
+      );
     }
-    const term = this.searchTerm.toLowerCase();
-    this.filteredProducts = this.products.filter(p =>
-      p.name.toLowerCase().includes(term) ||
-      p.sku.toLowerCase().includes(term)
-    );
+    this.cdr.detectChanges();
   }
 
   addToCart(product: Product): void {
@@ -81,11 +76,13 @@ export class PosComponent implements OnInit {
       this.cartItems.push({ product, quantity: 1, unit_price: product.selling_price });
     }
     this.updateTotals();
+    this.cdr.detectChanges();
   }
 
   removeFromCart(index: number): void {
     this.cartItems.splice(index, 1);
     this.updateTotals();
+    this.cdr.detectChanges();
   }
 
   updateQuantity(index: number, quantity: number): void {
@@ -95,38 +92,41 @@ export class PosComponent implements OnInit {
     }
     this.cartItems[index].quantity = quantity;
     this.updateTotals();
+    this.cdr.detectChanges();
   }
 
   updateTotals(): void {
     this.subtotal = 0;
     this.taxAmount = 0;
-
     for (const item of this.cartItems) {
       const itemTotal = item.quantity * item.unit_price;
       this.subtotal += itemTotal;
       const taxRate = item.product.tax_rate ? parseFloat(item.product.tax_rate) / 100 : 0.18;
       this.taxAmount += itemTotal * taxRate;
     }
-
     this.grandTotal = this.subtotal + this.taxAmount - this.discountAmount;
   }
 
   onDiscountChange(): void {
     this.updateTotals();
+    this.cdr.detectChanges();
   }
 
   createSale(): void {
     if (!this.customerName.trim()) {
       this.error = 'Customer name is required';
+      this.cdr.detectChanges();
       return;
     }
     if (this.cartItems.length === 0) {
       this.error = 'Add at least one product';
+      this.cdr.detectChanges();
       return;
     }
 
     this.loading = true;
     this.error = '';
+    this.cdr.detectChanges();
 
     const saleData: SaleCreate = {
       customer_name: this.customerName,
@@ -155,11 +155,13 @@ export class PosComponent implements OnInit {
         this.customerAddress = '';
         this.discountAmount = 0;
         this.updateTotals();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.loading = false;
         console.error('Error creating sale:', err);
         this.error = 'Failed to create sale. Please try again.';
+        this.cdr.detectChanges();
       }
     });
   }

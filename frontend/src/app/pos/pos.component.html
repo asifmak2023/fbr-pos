@@ -7,32 +7,31 @@
   <div *ngIf="error" class="error-message">{{ error }}</div>
 
   <div class="pos-grid">
-
     <!-- LEFT: Products -->
-<div class="pos-products">
-  <div class="search-box">
-    <input
-      type="text"
-      placeholder="Search products..."
-      [(ngModel)]="searchTerm"
-      (input)="searchProducts()"
-      class="search-input"
-    />
-  </div>
+    <div class="pos-products">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Search products..."
+          [(ngModel)]="searchTerm"
+          (input)="searchProducts()"
+          class="search-input"
+        />
+      </div>
 
-  <div class="product-list">
-    <!-- ✅ FIXED: Use products, not filteredProducts -->
-    <div
-      *ngFor="let product of products"
-      class="product-item"
-      (click)="addToCart(product)"
-    >
-      <span class="product-item-name">{{ product.name }}</span>
-      <span class="product-item-price">PKR {{ product.selling_price | number }}</span>
+      <div class="product-list">
+        <!-- ✅ USE filteredProducts -->
+        <div
+          *ngFor="let product of filteredProducts"
+          class="product-item"
+          (click)="addToCart(product)"
+        >
+          <span class="product-item-name">{{ product.name }}</span>
+          <span class="product-item-price">PKR {{ product.selling_price | number }}</span>
+        </div>
+        <div *ngIf="filteredProducts.length === 0" class="no-products">No products found</div>
+      </div>
     </div>
-    <div *ngIf="products.length === 0" class="no-products">No products found</div>
-  </div>
-</div>
 
     <!-- RIGHT: Cart -->
     <div class="pos-cart">

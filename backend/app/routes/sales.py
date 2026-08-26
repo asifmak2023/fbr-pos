@@ -10,6 +10,7 @@ from app.models.product import Product
 from app.models.sale import Sale, SaleItem
 from app.models.user import User
 from app.routes.auth import get_current_user
+from app.services.fbr_client import FBRClient
 
 router = APIRouter(prefix="/api/v1/sales", tags=["sales"])
 
@@ -86,6 +87,31 @@ def create_sale(
     
     db.commit()
     db.refresh(new_sale)
+
+        # Send to FBR
+    try:
+        fbr_client = FBRClient()
+        fbr_response = fbr_client.post_invoice(new_sale)
+        if "invoiceNumber" in fbr_response:
+            new_sale.fbr_invoice_number = fbr_response["invoiceNumber"]
+            new_sale.fbr_status = "Posted"
+            new_sale.fbr_status_code = fbr_response.get("statusCode", "00")
+        elif fbr_response.get("statusCode") == "01":
+            new_sale.fbr_status = "Failed"
+            new_sale.fbr_status_code = "01"
+            new_sale.fbr_error_code = fbr_response.get("errorCode")
+            new_sale.fbr_error_message = fbr_response.get("error")
+        else:
+            new_sale.fbr_status = "Error"
+            new_sale.fbr_status_code = "99"
+            new_sale.fbr_error_message = str(fbr_response.get("error", "Unknown FBR error"))
+        db.commit()
+        db.refresh(new_sale)
+    except Exception as e:
+        logger.error(f"FBR processing failed: {e}")
+        new_sale.fbr_status = "Failed"
+        new_sale.fbr_error_message = str(e)
+        db.commit()
     
     return {
         "id": new_sale.id,
