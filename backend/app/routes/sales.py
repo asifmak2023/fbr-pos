@@ -5,12 +5,12 @@ from typing import List
 from datetime import datetime
 import uuid
 
-from app.database import get_db
-from app.models.product import Product
-from app.models.sale import Sale, SaleItem
-from app.models.user import User
-from app.routes.auth import get_current_user
-from app.services.fbr_client import FBRClient
+from ..database import get_db
+from ..models.product import Product
+from ..models.sale import Sale, SaleItem
+from ..models.user import User
+from .auth import get_current_user
+from ..services.fbr_client import FBRClient
 
 router = APIRouter(prefix="/api/v1/sales", tags=["sales"])
 

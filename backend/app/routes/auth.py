@@ -1,25 +1,32 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.database import get_db
-from app.models.user import User
-from app.utils.auth import verify_password, hash_password, create_access_token, decode_token
+from pydantic import BaseModel
+from ..database import get_db
+from ..models.user import User
+from ..utils.auth import verify_password, hash_password, create_access_token, decode_token
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 
+class UserRegister(BaseModel):
+    username: str
+    email: str
+    password: str
+    full_name: str = None
+
 @router.post("/register")
-def register(username: str, email: str, password: str, full_name: str = None, db: Session = Depends(get_db)):
-    existing_user = db.query(User).filter((User.username == username) | (User.email == email)).first()
+def register(user_data: UserRegister, db: Session = Depends(get_db)):
+    existing_user = db.query(User).filter((User.username == user_data.username) | (User.email == user_data.email)).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Username or email already registered")
     
     new_user = User(
-        username=username,
-        email=email,
-        password_hash=hash_password(password),
-        full_name=full_name,
+        username=user_data.username,
+        email=user_data.email,
+        password_hash=hash_password(user_data.password),
+        full_name=user_data.full_name,
     )
     db.add(new_user)
     db.commit()

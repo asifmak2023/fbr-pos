@@ -2,18 +2,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from .database import engine, Base
-from .models import user  # <-- ADD THIS LINE (imports the User model)
-from .routes import auth   # <-- must be present
-from .routes import auth, products, sales   # <-- add 'products'
-
-
+from .models import user
+from .routes import auth, products, sales
+from .config import settings
 
 # Create the FastAPI app instance
 app = FastAPI(title="FBR POS API", version="1.0")
 
-app.include_router(auth.router)   # <-- must be present
+app.include_router(auth.router)
 app.include_router(products.router)
-app.include_router(sales.router)   # <-- add this line
+app.include_router(sales.router)
 
 
 # Create database tables on startup
@@ -23,12 +21,15 @@ def startup():
     print("✅ Database tables created (if they didn't exist)")
 
 # Allow frontend to talk to backend (CORS)
+# Note: When allow_credentials=True, wildcard origins are not allowed by browsers
+# We need to specify exact origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # A simple test endpoint
