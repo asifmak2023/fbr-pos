@@ -1,0 +1,554 @@
+You are working on my existing FBR Digital Invoicing POS application.
+
+IMPORTANT:
+Do NOT rebuild or replace the existing POS, Cart, Sale, Invoice, or FBR integration.
+SN001 and SN002 have already been successfully tested and submitted to the FBR sandbox.
+
+Your task is to inspect the existing project, understand how SN001/SN002 currently work, and extend the application so that we can complete the remaining required FBR sandbox scenarios.
+
+============================================================
+PROJECT STATUS
+============================================================
+
+The application already has:
+
+- POS
+- Products
+- Cart
+- Checkout
+- Sales
+- Invoice generation
+- FBR integration
+- FBR sandbox authentication/token
+- IP whitelisting
+- Successful FBR sandbox invoice submission
+- SN001 successfully tested
+- SN002 successfully tested
+
+Current FBR integration file:
+
+backend/app/services/fbr_client.py
+
+The FBR request currently contains a field similar to:
+
+"scenarioId": "SN001"
+
+The scenario ID needs to be changed for testing the remaining scenarios.
+
+============================================================
+BUSINESS PROFILE
+============================================================
+
+The taxpayer/business profile is:
+
+- Importer
+- Service Provider
+- Other / All Other Sectors
+
+According to the FBR Digital Invoicing "Applicable Scenarios based on Business Activity", the scenarios required for this business profile include:
+
+SN001
+SN002
+SN005
+SN006
+SN007
+SN015
+SN016
+SN017
+SN018
+SN019
+SN021
+SN022
+SN024
+
+SN001 and SN002 are already completed.
+
+Therefore, implement and prepare the following remaining scenarios:
+
+1. SN005 – Reduced Rate Goods (Eighth Schedule)
+2. SN006 – Exempt Goods (Sixth Schedule)
+3. SN007 – Zero-Rated Goods (Fifth Schedule)
+4. SN015 – Sale of Mobile Phones
+5. SN016 – Processing / Conversion of Goods
+6. SN017 – Sale of Goods Where FED Is Charged in ST Mode
+7. SN018 – Sale of Services Where FED Is Charged in ST Mode
+8. SN019 – Sale of Services (as per ICT Ordinance)
+9. SN021 – Sale of Cement / Concrete Block
+10. SN022 – Sale of Potassium Chlorate
+11. SN024 – Sale of Goods Listed in SRO 297(1)/2023
+
+============================================================
+SOURCE OF TRUTH
+============================================================
+
+DO NOT invent or guess scenario-specific values.
+
+Find and inspect the official:
+
+"DI Scenarios JSON for Sandbox Testing.pdf"
+
+or the corresponding official FBR/PRAL scenario documentation already present in the project.
+
+For every scenario, extract the exact sample/request values required by FBR, including where applicable:
+
+- scenarioId
+- HS Code
+- product description
+- rate
+- UOM
+- quantity
+- unit price
+- sales tax
+- sales tax amount
+- extra tax
+- further tax
+- FED
+- SRO information
+- SRO item number
+- discount
+- invoice type
+- buyer information
+- seller information
+- any other scenario-specific fields
+
+The official FBR/PRAL sandbox scenario JSON examples are the authoritative source.
+
+If the PDF is not present in the repository, DO NOT guess the values.
+
+Instead:
+1. Tell me exactly which official document is missing.
+2. Identify the scenarios that cannot safely be implemented without it.
+3. Do not fabricate FBR values.
+
+============================================================
+FIRST TASK — INSPECT THE EXISTING APPLICATION
+============================================================
+
+Before changing anything, inspect the project.
+
+Specifically inspect:
+
+- backend/app/services/fbr_client.py
+- FBR routes
+- invoice/sale services
+- product models
+- invoice models
+- sale models
+- schemas
+- frontend POS components
+- cart components
+- checkout components
+- product creation/editing components
+- database migrations
+- configuration/environment files
+- existing FBR logging/error handling
+
+Determine exactly how SN001 and SN002 are currently generated and submitted.
+
+Do not modify working SN001/SN002 functionality unless necessary.
+
+Provide a short architecture summary before implementing changes.
+
+============================================================
+SECOND TASK — DO NOT HARD-CODE SCENARIO CHANGES MANUALLY
+============================================================
+
+Do NOT make us edit:
+
+"scenarioId": "SN005"
+
+manually in source code every time we want to test a scenario.
+
+Instead, make the scenario system configurable.
+
+Create an appropriate configuration/model structure such as:
+
+FBR Scenario
+-------------
+scenario_id
+name
+description
+business_activity
+enabled
+test_status
+required_fields
+sample_data
+created_at
+updated_at
+
+Use the existing project architecture and database conventions rather than blindly creating these exact fields.
+
+The goal is:
+
+POS → Select Scenario → Load appropriate test data → Create invoice → Submit to FBR
+
+============================================================
+THIRD TASK — CREATE SCENARIO-SPECIFIC TEST DATA
+============================================================
+
+For each remaining scenario, create at least one valid sandbox test invoice.
+
+The application should provide a safe way to select a scenario for testing.
+
+Example:
+
+FBR Sandbox Testing
+
+[ SN005 – Reduced Rate Goods ]
+
+Product:
+Reduced Rate Test Product
+
+HS Code:
+<official value>
+
+Rate:
+<official value>
+
+UOM:
+<official value>
+
+Quantity:
+1
+
+Price:
+<official value>
+
+Then:
+
+[ Create Test Invoice ]
+[ Submit to FBR Sandbox ]
+
+Do this for all remaining scenarios.
+
+IMPORTANT:
+
+These should be clearly marked as SANDBOX TEST DATA.
+
+Do not accidentally use test scenario data for normal production sales.
+
+============================================================
+FOURTH TASK — SCENARIO-SPECIFIC VALIDATION
+============================================================
+
+Implement validation based on the selected scenario.
+
+For example:
+
+SN005
+- Validate required reduced-rate fields.
+
+SN006
+- Validate exempt-goods fields.
+
+SN007
+- Validate zero-rated fields.
+
+SN015
+- Validate mobile-phone-specific requirements.
+
+SN016
+- Validate processing/conversion requirements.
+
+SN017
+- Validate FED-related fields.
+
+SN018
+- Validate service + FED fields.
+
+SN019
+- Validate ICT Ordinance service fields.
+
+SN021
+- Validate cement/concrete-block requirements.
+
+SN022
+- Validate potassium-chlorate requirements.
+
+SN024
+- Validate SRO 297(1)/2023 requirements.
+
+Use the official FBR examples to determine the actual required fields.
+
+Do not invent validation rules.
+
+============================================================
+FIFTH TASK — FBR CLIENT
+============================================================
+
+Refactor backend/app/services/fbr_client.py only as necessary.
+
+The client should accept the scenario ID dynamically.
+
+For example conceptually:
+
+submit_invoice(invoice_data, scenario_id)
+
+rather than requiring us to modify source code every time.
+
+The generated FBR JSON must remain compliant with the official sandbox specification.
+
+Do not change the successful authentication/token mechanism.
+
+Do not expose the FBR token in frontend code.
+
+Do not commit .env or secrets.
+
+============================================================
+SIXTH TASK — FBR RESPONSE HANDLING
+============================================================
+
+For every sandbox submission:
+
+Capture and store:
+
+- HTTP status
+- FBR status code
+- FBR response
+- FBR invoice number
+- FBR validation number/reference
+- scenario ID
+- local invoice number
+- submission timestamp
+- request payload
+- response payload
+- error message if submission fails
+
+Do not expose sensitive credentials in logs.
+
+The expected successful FBR response should be checked according to the actual FBR API specification.
+
+Do NOT simply assume:
+
+statusCode == "00"
+
+without confirming how the existing application and current FBR API define success.
+
+============================================================
+SEVENTH TASK — FRONTEND
+============================================================
+
+Add a simple FBR Sandbox Testing interface.
+
+Possible location:
+
+Admin → FBR → Sandbox Testing
+
+The interface should show:
+
+------------------------------------------------
+FBR DIGITAL INVOICING
+SANDBOX SCENARIO TESTING
+------------------------------------------------
+
+Scenario:
+
+[ SN005 – Reduced Rate Goods ]
+
+Status:
+
+Not Tested / Passed / Failed
+
+Test Invoice:
+
+[ Create Test Invoice ]
+
+[ Submit to FBR ]
+
+Response:
+
+Status Code:
+FBR Invoice Number:
+Message:
+
+------------------------------------------------
+
+Allow the user to select each required scenario.
+
+Show a checklist:
+
+[✓] SN001 – Standard Rate Registered Buyer
+[✓] SN002 – Standard Rate Unregistered Buyer
+[ ] SN005 – Reduced Rate Goods
+[ ] SN006 – Exempt Goods
+[ ] SN007 – Zero-Rated Goods
+[ ] SN015 – Sale of Mobile Phones
+[ ] SN016 – Processing / Conversion
+[ ] SN017 – Goods Where FED Is Charged in ST Mode
+[ ] SN018 – Services Where FED Is Charged in ST Mode
+[ ] SN019 – Services as per ICT Ordinance
+[ ] SN021 – Cement / Concrete Block
+[ ] SN022 – Potassium Chlorate
+[ ] SN024 – SRO 297(1)/2023
+
+The status should be stored in the database, not just frontend state.
+
+============================================================
+EIGHTH TASK — DO NOT BREAK NORMAL POS
+============================================================
+
+Normal POS sales must continue to work exactly as before.
+
+There should be a clear distinction between:
+
+NORMAL SALE
+
+and
+
+FBR SANDBOX TEST SALE
+
+Sandbox test invoices must not:
+
+- corrupt inventory
+- alter normal customer balances
+- appear as genuine production invoices
+- use production credentials
+- accidentally go to the production FBR endpoint
+
+If the existing architecture already handles this distinction, reuse it.
+
+============================================================
+NINTH TASK — TESTING
+============================================================
+
+Create automated tests wherever practical.
+
+At minimum test:
+
+1. Scenario configuration
+2. Scenario-specific payload generation
+3. Required field validation
+4. FBR request construction
+5. Successful response handling
+6. Failed response handling
+7. Database storage of FBR response
+8. Scenario test status
+
+Do not actually call the FBR sandbox repeatedly during automated unit tests unless there is an existing integration-test mechanism.
+
+Mock the FBR HTTP response for unit tests.
+
+============================================================
+TENTH TASK — ACTUAL SANDBOX TEST WORKFLOW
+============================================================
+
+After implementation, provide me with a clear manual testing procedure.
+
+For each scenario:
+
+1. Open FBR Sandbox Testing.
+2. Select scenario.
+3. Review generated test product/invoice.
+4. Create invoice.
+5. Submit to FBR sandbox.
+6. Record FBR response.
+7. Confirm successful response.
+8. Store test result.
+9. Mark scenario as Passed.
+
+The final checklist should look like:
+
+SN001  PASS
+SN002  PASS
+SN005  PENDING
+SN006  PENDING
+SN007  PENDING
+SN015  PENDING
+SN016  PENDING
+SN017  PENDING
+SN018  PENDING
+SN019  PENDING
+SN021  PENDING
+SN022  PENDING
+SN024  PENDING
+
+============================================================
+IMPORTANT SECURITY RULES
+============================================================
+
+Never:
+
+- commit FBR tokens
+- expose tokens in frontend JavaScript
+- put tokens in Git
+- print tokens in logs
+- hard-code production credentials
+- send sandbox invoices to production
+- send production invoices to sandbox
+- modify .env without explaining the change
+
+Use environment variables.
+
+Example:
+
+FBR_ENVIRONMENT=sandbox
+FBR_SANDBOX_TOKEN=...
+FBR_PRODUCTION_TOKEN=...
+
+Use the project's existing environment configuration if already implemented.
+
+============================================================
+IMPORTANT — PRODUCTION TOKEN
+============================================================
+
+Do NOT assume that completing the scenarios automatically guarantees production access.
+
+The application should only report:
+
+"All required sandbox scenarios completed"
+
+after the actual FBR sandbox submissions succeed.
+
+Do not claim that a production token has been generated unless this is actually confirmed in the IRIS portal/documentation.
+
+Production activation must remain a separate step.
+
+============================================================
+DELIVERABLES
+============================================================
+
+When finished, provide:
+
+1. Summary of existing FBR architecture.
+2. Files changed.
+3. Database changes.
+4. New API endpoints.
+5. New frontend pages/components.
+6. Scenario configuration structure.
+7. List of all 11 implemented scenarios.
+8. Exact official FBR sample values used for each scenario.
+9. Validation rules implemented.
+10. Automated tests created.
+11. Instructions to run the application.
+12. Instructions to test each scenario.
+13. Any scenarios that could not be implemented because official FBR documentation/data was missing.
+14. Any assumptions made — preferably NONE for FBR-specific values.
+15. Any remaining work required before production.
+
+============================================================
+SUCCESS CRITERIA
+============================================================
+
+The implementation is successful when:
+
+- Existing SN001 works.
+- Existing SN002 works.
+- SN005 can be generated and submitted.
+- SN006 can be generated and submitted.
+- SN007 can be generated and submitted.
+- SN015 can be generated and submitted.
+- SN016 can be generated and submitted.
+- SN017 can be generated and submitted.
+- SN018 can be generated and submitted.
+- SN019 can be generated and submitted.
+- SN021 can be generated and submitted.
+- SN022 can be generated and submitted.
+- SN024 can be generated and submitted.
+
+Each scenario must use the exact applicable FBR sandbox JSON structure and scenario-specific data from the official FBR documentation.
+
+DO NOT declare a scenario "passed" merely because the application generated a JSON payload.
+
+A scenario is PASSED only after the FBR sandbox accepts the invoice successfully.
+
+Start by inspecting the existing codebase and report your findings before making changes.

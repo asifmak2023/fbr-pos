@@ -17,15 +17,17 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { ProductListComponent } from './product-list/product-list.component';
 import { ProductFormDialogComponent } from './product-form-dialog/product-form-dialog.component';
 import { PosComponent } from './pos/pos.component';
+import { FbrSandboxComponent } from './fbr-sandbox/fbr-sandbox.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     DashboardComponent,
-    ProductListComponent,        // <-- ADD THIS BACK
-    ProductFormDialogComponent,  // <-- KEEP 
-    PosComponent   // <-- ADD THIS
+    ProductListComponent,
+    ProductFormDialogComponent,
+    PosComponent,
+    FbrSandboxComponent
   ],
   imports: [
     BrowserModule,

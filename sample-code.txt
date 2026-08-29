@@ -1,0 +1,22 @@
+using System.Net.Http;
+using Newtonsoft.Json;
+
+
+HttpClient client = new HttpClient();
+client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "your token");
+
+StringContent content = new StringContent(JsonConvert.SerializeObject(objinvoice), Encoding.UTF8, "application/json");
+HttpResponseMessage response = client.PostAsync("https://gw.fbr.gov.pk/di_data/v1/di/postinvoicedata_sb", content).Result;
+
+ 
+
+if (response.IsSuccessStatusCode)
+
+{
+
+   Console.WriteLine("Response from API:");
+
+    Console.WriteLine("-------------------------------");
+    Console.WriteLine(response.Content.ReadAsStringAsync().Result);
+
+}

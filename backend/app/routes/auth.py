@@ -36,16 +36,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/me")
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    print(f"🔍 Received token: {token[:20]}...")  # <-- ADD THIS
-    payload = decode_token(token)
-    if not payload:
-        print("❌ Token decode failed")  # <-- ADD THIS
-        raise HTTPException(status_code=401, detail="Invalid token")
-    # ... rest remains
-    
-@router.get("/me")
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_user_info(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     payload = decode_token(token)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid token")
@@ -63,6 +54,19 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         "role": user.role,
         "is_active": user.is_active
     }
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    """Dependency function to get current authenticated user"""
+    payload = decode_token(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    username = payload.get("sub")
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    
+    return user
 
 @router.get("/ping")
 def ping():

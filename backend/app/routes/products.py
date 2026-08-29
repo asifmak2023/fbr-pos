@@ -4,7 +4,7 @@ from typing import List
 from app.database import get_db
 from app.models.product import Product
 from app.schemas.product import ProductCreate, ProductUpdate, ProductResponse
-from app.routes.auth import oauth2_scheme, get_current_user   # to protect endpoints
+from app.routes.auth import get_current_user
 
 router = APIRouter(prefix="/api/v1/products", tags=["products"])
 

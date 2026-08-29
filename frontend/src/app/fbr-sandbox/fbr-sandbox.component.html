@@ -1,0 +1,154 @@
+<div class="fbr-sandbox-container">
+  <div class="header">
+    <h1>FBR Digital Invoicing</h1>
+    <h2>Sandbox Scenario Testing</h2>
+  </div>
+
+  <div class="content">
+    <!-- Test Summary -->
+    <div class="summary-section" *ngIf="testSummary">
+      <h3>Test Summary</h3>
+      <div class="summary-stats">
+        <div class="stat-box">
+          <span class="stat-label">Total</span>
+          <span class="stat-value">{{ testSummary.total }}</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Not Tested</span>
+          <span class="stat-value status-not-tested">{{ testSummary.not_tested }}</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Passed</span>
+          <span class="stat-value status-passed">{{ testSummary.passed }}</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Failed</span>
+          <span class="stat-value status-failed">{{ testSummary.failed }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scenario Selection -->
+    <div class="scenario-section">
+      <h3>Select Scenario</h3>
+      <div class="scenario-list" *ngIf="!loading">
+        <div 
+          class="scenario-item" 
+          *ngFor="let scenario of scenarios"
+          [class.selected]="selectedScenario?.scenario_code === scenario.scenario_code"
+          [class.disabled]="!scenario.enabled"
+          (click)="scenario.enabled ? selectScenario(scenario) : null"
+        >
+          <div class="scenario-info">
+            <span class="scenario-code">{{ scenario.scenario_code }}</span>
+            <span class="scenario-name">{{ scenario.name }}</span>
+          </div>
+          <div class="scenario-status">
+            <span class="status-badge" [ngClass]="getStatusClass(scenario.test_status)">
+              {{ scenario.test_status }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="loading" *ngIf="loading">Loading scenarios...</div>
+    </div>
+
+    <!-- Scenario Details and Testing -->
+    <div class="test-section" *ngIf="selectedScenario">
+      <h3>Scenario Details</h3>
+      <div class="scenario-details">
+        <div class="detail-row">
+          <span class="detail-label">Code:</span>
+          <span class="detail-value">{{ selectedScenario.scenario_code }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Name:</span>
+          <span class="detail-value">{{ selectedScenario.name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Description:</span>
+          <span class="detail-value">{{ selectedScenario.description || 'N/A' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Business Activity:</span>
+          <span class="detail-value">{{ selectedScenario.business_activity || 'N/A' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Sector:</span>
+          <span class="detail-value">{{ selectedScenario.sector || 'N/A' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Current Status:</span>
+          <span class="detail-value">
+            <span class="status-badge" [ngClass]="getStatusClass(selectedScenario.test_status)">
+              {{ selectedScenario.test_status }}
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <div class="test-actions">
+        <button 
+          class="btn-test" 
+          (click)="testScenario()" 
+          [disabled]="testingInProgress"
+        >
+          {{ testingInProgress ? 'Testing...' : 'Test with FBR Sandbox' }}
+        </button>
+        <button 
+          class="btn-reset" 
+          (click)="resetTest()" 
+          *ngIf="testResults"
+        >
+          Reset
+        </button>
+      </div>
+
+      <!-- Error Message -->
+      <div class="error-message" *ngIf="error">
+        {{ error }}
+      </div>
+
+      <!-- Test Results -->
+      <div class="test-results" *ngIf="testResults">
+        <h4>Test Results</h4>
+        <div class="result-section">
+          <h5>Test Status:</h5>
+          <span class="status-badge large" [ngClass]="getStatusClass(testResults.test_status)">
+            {{ testResults.test_status }}
+          </span>
+        </div>
+
+        <div class="result-section" *ngIf="testResults.fbr_invoice_number">
+          <h5>FBR Invoice Number:</h5>
+          <span class="invoice-number">{{ testResults.fbr_invoice_number }}</span>
+        </div>
+
+        <div class="result-section" *ngIf="testResults.error_message">
+          <h5>Error Message:</h5>
+          <span class="error-text">{{ testResults.error_message }}</span>
+        </div>
+
+        <div class="result-section" *ngIf="testResults.submission_timestamp">
+          <h5>Submission Time:</h5>
+          <span class="timestamp">{{ testResults.submission_timestamp }}</span>
+        </div>
+
+        <div class="result-section">
+          <h5>Test Invoice Data:</h5>
+          <pre class="json-display">{{ formatJson(testResults.test_invoice_data) }}</pre>
+        </div>
+
+        <div class="result-section" *ngIf="testResults.fbr_response">
+          <h5>FBR Response:</h5>
+          <pre class="json-display">{{ formatJson(testResults.fbr_response) }}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- No scenario selected -->
+    <div class="no-selection" *ngIf="!selectedScenario && !loading">
+      <p>Select a scenario from the list above to view details and test with FBR sandbox.</p>
+    </div>
+  </div>
+</div>

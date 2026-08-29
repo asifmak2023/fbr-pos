@@ -1,0 +1,36 @@
+{
+  "invoiceType": "Sale Invoice",
+  "invoiceDate": "yyyy-MM-dd",
+  "sellerNTNCNIC": "0000000000000",
+  "sellerBusinessName": "Your Business Name",
+  "sellerProvince": "Seller Province",
+  "sellerAddress": "Seller Address",
+  "buyerNTNCNIC": "0000000000000",
+  "buyerBusinessName": "Buyer Business Name",
+  "buyerProvince": "Buyer Province",
+  "buyerAddress": "Buyer Address",
+  "buyerRegistrationType": "Registered",
+  "invoiceRefNo": "",
+  "scenarioId": "SN000",
+  "items": [
+    {
+      "hsCode": "0000.0000",
+      "productDescription": "",
+      "rate": "0%",
+      "uoM": "",
+      "quantity": 0,
+      "totalValues": 0,
+      "valueSalesExcludingST": 0,
+      "fixedNotifiedValueOrRetailPrice": 0,
+      "salesTaxApplicable": 0,
+      "salesTaxWithheldAtSource": 0,
+      "extraTax": "",
+      "furtherTax": 0,
+      "sroScheduleNo": "",
+      "fedPayable": 0,
+      "discount": 0,
+      "saleType": "",
+      "sroItemSerialNo": ""
+    }
+  ]
+}
