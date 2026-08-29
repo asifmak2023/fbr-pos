@@ -3,6 +3,7 @@ import { FbrScenarioService, FBRScenario, FBRScenarioTestResponse, ScenarioTestS
 
 @Component({
   selector: 'app-fbr-sandbox',
+  standalone: false,
   templateUrl: './fbr-sandbox.component.html',
   styleUrls: ['./fbr-sandbox.component.scss']
 })

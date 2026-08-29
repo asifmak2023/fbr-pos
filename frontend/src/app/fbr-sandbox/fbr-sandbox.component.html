@@ -2,6 +2,7 @@
   <div class="header">
     <h1>FBR Digital Invoicing</h1>
     <h2>Sandbox Scenario Testing</h2>
+    <p>Sandbox test data only — this screen does not create a normal POS sale or change inventory.</p>
   </div>
 
   <div class="content">
@@ -93,7 +94,7 @@
           (click)="testScenario()" 
           [disabled]="testingInProgress"
         >
-          {{ testingInProgress ? 'Testing...' : 'Test with FBR Sandbox' }}
+          {{ testingInProgress ? 'Submitting sandbox test...' : 'Submit official test data to FBR Sandbox' }}
         </button>
         <button 
           class="btn-reset" 

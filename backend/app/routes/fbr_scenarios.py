@@ -13,7 +13,9 @@ from app.schemas.fbr_scenario import (
 )
 from app.routes.auth import get_current_user
 from app.services.fbr_client import FBRClient
+from app.services.fbr_scenario_validation import validate_sandbox_payload
 import logging
+import os
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -54,6 +56,21 @@ def list_scenarios(
     scenarios = query.offset(skip).limit(limit).all()
     return scenarios
 
+
+@router.get("/status/summary")
+def get_test_status_summary(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Get the stored sandbox test status for every scenario."""
+    scenarios = db.query(FBRScenario).all()
+    return {
+        "total": len(scenarios),
+        "not_tested": len([s for s in scenarios if s.test_status == "Not Tested"]),
+        "passed": len([s for s in scenarios if s.test_status == "Passed"]),
+        "failed": len([s for s in scenarios if s.test_status == "Failed"]),
+        "scenarios": [{"scenario_code": s.scenario_code, "name": s.name, "test_status": s.test_status} for s in scenarios],
+    }
 
 @router.get("/{scenario_code}", response_model=FBRScenarioResponse)
 def get_scenario(
@@ -117,6 +134,8 @@ def test_scenario(
     
     if not scenario.enabled:
         raise HTTPException(status_code=400, detail=f"Scenario {test_request.scenario_code} is not enabled")
+    if os.getenv("FBR_ENV", "sandbox").lower() != "sandbox":
+        raise HTTPException(status_code=400, detail="Sandbox testing is disabled outside FBR_ENV=sandbox")
     
     # Get invoice data (either sample or custom)
     if test_request.use_sample_data:
@@ -127,6 +146,10 @@ def test_scenario(
         if not test_request.custom_invoice_data:
             raise HTTPException(status_code=400, detail="Custom invoice data required when not using sample data")
         invoice_data = test_request.custom_invoice_data
+
+    validation_errors = validate_sandbox_payload(invoice_data, scenario)
+    if validation_errors:
+        raise HTTPException(status_code=422, detail=validation_errors)
     
     # Submit to FBR
     try:
@@ -138,7 +161,7 @@ def test_scenario(
             scenario_id=test_request.scenario_code,
             request_payload=invoice_data,
             response_payload=fbr_response,
-            http_status=200 if "invoiceNumber" in fbr_response else 400,
+            http_status=fbr_response.get("httpStatus", 200 if "invoiceNumber" in fbr_response else 400),
             attempt_count=1
         )
         
@@ -203,29 +226,3 @@ def test_scenario(
             error_message=str(e),
             submission_timestamp=datetime.utcnow()
         )
-
-
-@router.get("/status/summary")
-def get_test_status_summary(
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
-):
-    """Get summary of all scenario test statuses"""
-    scenarios = db.query(FBRScenario).all()
-    
-    summary = {
-        "total": len(scenarios),
-        "not_tested": len([s for s in scenarios if s.test_status == "Not Tested"]),
-        "passed": len([s for s in scenarios if s.test_status == "Passed"]),
-        "failed": len([s for s in scenarios if s.test_status == "Failed"]),
-        "scenarios": [
-            {
-                "scenario_code": s.scenario_code,
-                "name": s.name,
-                "test_status": s.test_status
-            }
-            for s in scenarios
-        ]
-    }
-    
-    return summary

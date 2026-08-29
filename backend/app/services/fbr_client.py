@@ -145,12 +145,11 @@ class FBRClient:
                 response = client.post(self.base_url, json=payload, headers=self.headers)
                 response.raise_for_status()
                 data = response.json()
-                print(f"🚨 FBR FINAL RESPONSE for {context}: {data}")
+                logger.info("FBR request completed for %s with HTTP %s", context, response.status_code)
                 return data
         except httpx.HTTPStatusError as e:
-            print(f"🔥 FBR ERROR DETAILS for {context}: {e.response.text}")
-            logger.error(f"FBR HTTP error for {context}: {e.response.status_code} - {e.response.text}")
-            return {"error": str(e), "statusCode": "99", "details": e.response.text}
+            logger.error("FBR HTTP error for %s: HTTP %s", context, e.response.status_code)
+            return {"error": "FBR returned an HTTP error", "statusCode": "99", "details": e.response.text, "httpStatus": e.response.status_code}
         except Exception as e:
             logger.error(f"FBR client error for {context}: {e}")
             return {"error": str(e), "statusCode": "99"}

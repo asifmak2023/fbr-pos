@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from .database import engine, Base
 from .models import user
-from .routes import auth, products, sales
+from .routes import auth, products, sales, fbr_scenarios
 from .config import settings
 
 # Create the FastAPI app instance
@@ -12,6 +12,7 @@ app = FastAPI(title="FBR POS API", version="1.0")
 app.include_router(auth.router)
 app.include_router(products.router)
 app.include_router(sales.router)
+app.include_router(fbr_scenarios.router)
 
 
 # Create database tables on startup
