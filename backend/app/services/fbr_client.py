@@ -7,7 +7,7 @@ from typing import Dict, Any, Optional
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
-from app.models.sale import Sale, SaleItem
+from ..models.sale import Sale, SaleItem
 
 load_dotenv()
 

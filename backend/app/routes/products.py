@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from app.database import get_db
-from app.models.product import Product
-from app.schemas.product import ProductCreate, ProductUpdate, ProductResponse
-from app.routes.auth import get_current_user
+from ..database import get_db
+from ..models.product import Product
+from ..schemas.product import ProductCreate, ProductUpdate, ProductResponse
+from .auth import oauth2_scheme, get_current_user  # protect endpoints
+
 
 router = APIRouter(prefix="/api/v1/products", tags=["products"])
 
