@@ -1,0 +1,62 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary" *ngIf="isLoggedIn">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center" (click)="navigateTo('/dashboard')">
+      <mat-icon class="me-2">point_of_sale</mat-icon>
+      <span>FBR POS System</span>
+    </a>
+    
+    <button 
+      class="navbar-toggler" 
+      type="button" 
+      (click)="toggleMenu()" 
+      [attr.aria-expanded]="isMenuOpen"
+      aria-controls="navbarNav"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" [class.show]="isMenuOpen" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" 
+             (click)="navigateTo('/dashboard')" 
+             [class.active]="isActive('/dashboard')">
+            <mat-icon class="me-1">dashboard</mat-icon>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" 
+             (click)="navigateTo('/products')" 
+             [class.active]="isActive('/products')">
+            <mat-icon class="me-1">inventory_2</mat-icon>
+            <span>Products</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" 
+             (click)="navigateTo('/pos')" 
+             [class.active]="isActive('/pos') || isActive('/sales')">
+            <mat-icon class="me-1">shopping_cart</mat-icon>
+            <span>POS</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" 
+             (click)="navigateTo('/fbr-sandbox')" 
+             [class.active]="isActive('/fbr-sandbox')">
+            <mat-icon class="me-1">science</mat-icon>
+            <span>FBR Sandbox</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center text-danger" (click)="logout()">
+            <mat-icon class="me-1">logout</mat-icon>
+            <span>Logout</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

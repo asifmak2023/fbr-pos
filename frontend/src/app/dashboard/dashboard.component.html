@@ -1,14 +1,27 @@
-<div style="padding: 20px; font-family: Arial, sans-serif;">
-  <h1>Welcome to FBR POS Dashboard</h1>
-  <p>You are logged in!</p>
-
-  <nav style="margin: 20px 0;">
-    <a routerLink="/pos" style="margin-right: 15px; text-decoration: none; color: blue;">POS Sales</a>
-    <a routerLink="/products" style="margin-right: 15px; text-decoration: none; color: blue;">Products</a>
-    <!-- <a routerLink="/sales" style="margin-right: 15px; text-decoration: none; color: blue;">Sales</a> -->
-  </nav>
-
-  <button (click)="logout()" style="padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer;">
-    Logout
-  </button>
+<div class="container py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h1 class="card-title">Welcome to FBR POS Dashboard</h1>
+          <p class="card-text">You are logged in!</p>
+          
+          <div class="d-flex gap-3 my-4">
+            <a routerLink="/pos" class="btn btn-primary">
+              <mat-icon class="me-2">shopping_cart</mat-icon>
+              POS Sales
+            </a>
+            <a routerLink="/products" class="btn btn-success">
+              <mat-icon class="me-2">inventory_2</mat-icon>
+              Products
+            </a>
+            <a routerLink="/fbr-sandbox" class="btn btn-info">
+              <mat-icon class="me-2">science</mat-icon>
+              FBR Sandbox
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

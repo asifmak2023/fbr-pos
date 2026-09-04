@@ -7,7 +7,7 @@ import { PosComponent } from './pos/pos.component';
 import { FbrSandboxComponent } from './fbr-sandbox/fbr-sandbox.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/fbr-sandbox', pathMatch: 'full' },
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent },
   { path: 'products', component: ProductListComponent },

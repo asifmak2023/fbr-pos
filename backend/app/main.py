@@ -5,6 +5,7 @@ from .database import engine, Base
 from .models import user
 from .routes import auth, products, sales, fbr_scenarios
 from .config import settings
+import sys, os
 
 # Create the FastAPI app instance
 app = FastAPI(title="FBR POS API", version="1.0")
@@ -19,7 +20,15 @@ app.include_router(fbr_scenarios.router)
 @app.on_event("startup")
 def startup():
     Base.metadata.create_all(bind=engine)
-    print("✅ Database tables created (if they didn't exist)")
+    print("Database tables created (if they didn't exist)")
+    # Seed FBR scenarios (idempotent – preserves existing test_status)
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        from seed_fbr_scenarios import seed_scenarios
+        seed_scenarios()
+        print("FBR scenarios seeded successfully")
+    except Exception as exc:
+        print(f"WARNING: FBR scenario seeding failed: {exc}")
 
 # Allow frontend to talk to backend (CORS)
 # Note: When allow_credentials=True, wildcard origins are not allowed by browsers

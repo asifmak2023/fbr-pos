@@ -1,93 +1,146 @@
-<div class="pos-container">
-  <div class="pos-header">
-    <h1>🛒 POS Sales</h1>
-    <button class="btn-back" (click)="router.navigate(['/dashboard'])">← Back to Dashboard</button>
+<div class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1>
+          <mat-icon class="me-2">shopping_cart</mat-icon>
+          POS Sales
+        </h1>
+        <button class="btn btn-secondary" (click)="router.navigate(['/dashboard'])">
+          <mat-icon class="me-2">arrow_back</mat-icon>
+          Back to Dashboard
+        </button>
+      </div>
+    </div>
   </div>
 
-  <div *ngIf="error" class="error-message">{{ error }}</div>
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
 
-  <div class="pos-grid">
+  <div class="row">
     <!-- LEFT: Products -->
-    <div class="pos-products">
-      <div class="search-box">
-        <input
-          type="text"
-          placeholder="Search products..."
-          [(ngModel)]="searchTerm"
-          (input)="searchProducts()"
-          class="search-input"
-        />
-      </div>
+    <div class="col-lg-7 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="mb-3">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search products..."
+              [(ngModel)]="searchTerm"
+              (input)="searchProducts()"
+            />
+          </div>
 
-      <div class="product-list">
-        <!-- ✅ USE filteredProducts -->
-        <div
-          *ngFor="let product of filteredProducts"
-          class="product-item"
-          (click)="addToCart(product)"
-        >
-          <span class="product-item-name">{{ product.name }}</span>
-          <span class="product-item-price">PKR {{ product.selling_price | number }}</span>
+          <div class="list-group">
+            <div
+              *ngFor="let product of filteredProducts"
+              class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+              (click)="addToCart(product)"
+              style="cursor: pointer;"
+            >
+              <div>
+                <h6 class="mb-1">{{ product.name }}</h6>
+                <small class="text-muted">Stock: {{ product.quantity }}</small>
+              </div>
+              <span class="badge bg-primary rounded-pill">PKR {{ product.selling_price | number }}</span>
+            </div>
+            <div *ngIf="filteredProducts.length === 0" class="text-center py-4 text-muted">
+              No products found
+            </div>
+          </div>
         </div>
-        <div *ngIf="filteredProducts.length === 0" class="no-products">No products found</div>
       </div>
     </div>
 
     <!-- RIGHT: Cart -->
-    <div class="pos-cart">
-      <h2>Cart ({{ cartItems.length }})</h2>
-
-      <div class="cart-items">
-        <div *ngIf="cartItems.length === 0" class="empty-cart">
-          <span>🛒</span>
-          <p>Cart is empty</p>
+    <div class="col-lg-5">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <mat-icon class="me-2">shopping_cart</mat-icon>
+            Cart ({{ cartItems.length }})
+          </h5>
         </div>
-
-        <div *ngFor="let item of cartItems; let i = index" class="cart-item">
-          <div>
-            <div class="cart-item-name">{{ item.product.name }}</div>
-            <div class="cart-item-price">PKR {{ item.unit_price | number }}</div>
+        <div class="card-body">
+          <div *ngIf="cartItems.length === 0" class="text-center py-4 text-muted">
+            <mat-icon style="font-size: 48px; height: 48px; width: 48px;">shopping_cart</mat-icon>
+            <p class="mt-2">Cart is empty</p>
           </div>
-          <div class="cart-item-controls">
-            <button (click)="updateQuantity(i, item.quantity - 1)" class="qty-btn">−</button>
-            <span class="qty-value">{{ item.quantity }}</span>
-            <button (click)="updateQuantity(i, item.quantity + 1)" class="qty-btn">+</button>
-            <button (click)="removeFromCart(i)" class="remove-btn">✕</button>
+
+          <div *ngFor="let item of cartItems; let i = index" class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+            <div>
+              <h6 class="mb-1">{{ item.product.name }}</h6>
+              <small class="text-muted">PKR {{ item.unit_price | number }} each</small>
+            </div>
+            <div class="d-flex align-items-center">
+              <button (click)="updateQuantity(i, item.quantity - 1)" class="btn btn-sm btn-outline-secondary me-2">−</button>
+              <span class="mx-2">{{ item.quantity }}</span>
+              <button (click)="updateQuantity(i, item.quantity + 1)" class="btn btn-sm btn-outline-secondary me-2">+</button>
+              <button (click)="removeFromCart(i)" class="btn btn-sm btn-outline-danger">
+                <mat-icon style="font-size: 16px;">close</mat-icon>
+              </button>
+            </div>
           </div>
+
+          <div class="bg-light p-3 rounded mb-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Subtotal</span>
+              <span>PKR {{ subtotal | number }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Tax</span>
+              <span>PKR {{ taxAmount | number }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Discount</span>
+              <input type="number" class="form-control form-control-sm w-25 text-end" [(ngModel)]="discountAmount" (input)="onDiscountChange()" />
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between fw-bold">
+              <span>Total</span>
+              <span class="text-primary">PKR {{ grandTotal | number }}</span>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="mb-2">
+              <input type="text" class="form-control" placeholder="Customer Name *" [(ngModel)]="customerName" />
+            </div>
+            <div class="mb-2">
+              <input type="text" class="form-control" placeholder="Phone" [(ngModel)]="customerPhone" />
+            </div>
+            <div class="mb-2">
+              <input type="text" class="form-control" placeholder="NTN/CNIC" [(ngModel)]="customerNTN" />
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <select class="form-select" [(ngModel)]="customerRegistrationType">
+                  <option value="Unregistered">Unregistered</option>
+                  <option value="Registered">Registered</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <select class="form-select" [(ngModel)]="paymentMethod">
+                  <option value="Cash">Cash</option>
+                  <option value="Card">Card</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <button
+            class="btn btn-success w-100 py-2"
+            (click)="createSale()"
+            [disabled]="loading || cartItems.length === 0"
+          >
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            <mat-icon class="me-2" *ngIf="!loading">payment</mat-icon>
+            {{ loading ? 'Processing...' : 'Complete Sale' }}
+          </button>
         </div>
       </div>
-
-      <div class="cart-summary">
-        <div class="summary-row"><span>Subtotal</span><span>PKR {{ subtotal | number }}</span></div>
-        <div class="summary-row"><span>Tax</span><span>PKR {{ taxAmount | number }}</span></div>
-        <div class="summary-row discount">
-          <span>Discount</span>
-          <input type="number" [(ngModel)]="discountAmount" (input)="onDiscountChange()" />
-        </div>
-        <div class="summary-row total"><span>Total</span><span>PKR {{ grandTotal | number }}</span></div>
-      </div>
-
-      <div class="cart-customer">
-        <input type="text" placeholder="Customer Name *" [(ngModel)]="customerName" />
-        <input type="text" placeholder="Phone" [(ngModel)]="customerPhone" />
-        <input type="text" placeholder="NTN/CNIC" [(ngModel)]="customerNTN" />
-        <select [(ngModel)]="customerRegistrationType">
-          <option value="Unregistered">Unregistered</option>
-          <option value="Registered">Registered</option>
-        </select>
-        <select [(ngModel)]="paymentMethod">
-          <option value="Cash">Cash</option>
-          <option value="Card">Card</option>
-        </select>
-      </div>
-
-      <button
-        class="btn-checkout"
-        (click)="createSale()"
-        [disabled]="loading || cartItems.length === 0"
-      >
-        {{ loading ? 'Processing...' : '💳 Complete Sale' }}
-      </button>
     </div>
   </div>
 </div>

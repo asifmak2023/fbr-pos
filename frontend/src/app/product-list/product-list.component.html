@@ -1,44 +1,74 @@
-<div class="product-container">
+<div class="container py-4">
   <!-- Header -->
-  <div class="page-header">
+  <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h1>Products</h1>
-      <p class="subtitle">Manage your product inventory</p>
+      <p class="text-muted">Manage your product inventory</p>
     </div>
-    <button class="btn-primary" (click)="openAddProduct()">+ Add Product</button>
+    <button class="btn btn-primary" (click)="openAddProduct()">
+      <mat-icon class="me-2">add</mat-icon>
+      Add Product
+    </button>
   </div>
 
   <!-- Loading -->
-  <div *ngIf="loading" class="loading-state">Loading...</div>
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
 
   <!-- Error -->
-  <div *ngIf="error" class="error-state">{{ error }}</div>
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
 
-  <!-- Product Cards (FAST) -->
-  <div *ngIf="!loading && products.length > 0" class="product-grid">
-    <div *ngFor="let product of products; trackBy: trackById" class="product-item">
-      <div class="product-icon">📦</div>
-      <div class="product-info">
-        <div class="product-name">{{ product.name || 'Unnamed' }}</div>
-        <div class="product-sku">SKU: {{ product.sku || '—' }}</div>
-      </div>
-      <div class="product-price">PKR {{ product.selling_price || 0 | number }}</div>
-      <div class="product-stock">
-        <span class="stock-badge" [class.low-stock]="product.quantity <= 5">
-          {{ product.quantity || 0 }}
-        </span>
-      </div>
-      <div class="product-actions">
-        <button class="btn-icon btn-edit" (click)="editProduct(product.id)">✏️</button>
-        <button class="btn-icon btn-delete" (click)="deleteProduct(product.id)">🗑️</button>
+  <!-- Product Cards -->
+  <div *ngIf="!loading && products.length > 0" class="row g-3">
+    <div *ngFor="let product of products; trackBy: trackById" class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-start justify-content-between mb-3">
+            <div class="d-flex align-items-center">
+              <mat-icon class="text-primary me-2">inventory_2</mat-icon>
+              <div>
+                <h5 class="card-title mb-1">{{ product.name || 'Unnamed' }}</h5>
+                <small class="text-muted">SKU: {{ product.sku || '—' }}</small>
+              </div>
+            </div>
+            <span class="badge" 
+                  [class.bg-success]="product.quantity > 5"
+                  [class.bg-warning]="product.quantity <= 5 && product.quantity > 0"
+                  [class.bg-danger]="product.quantity <= 0">
+              {{ product.quantity || 0 }} in stock
+            </span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="h5 mb-0 text-primary">PKR {{ product.selling_price || 0 | number }}</span>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline-primary" (click)="editProduct(product.id)">
+                <mat-icon class="me-1" style="font-size: 16px;">edit</mat-icon>
+                Edit
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="deleteProduct(product.id)">
+                <mat-icon class="me-1" style="font-size: 16px;">delete</mat-icon>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Empty -->
-  <div *ngIf="!loading && products.length === 0" class="empty-state">
-    <span>📭</span>
-    <h3>No products yet</h3>
-    <button class="btn-primary" (click)="openAddProduct()">Add Product</button>
+  <!-- Empty State -->
+  <div *ngIf="!loading && products.length === 0" class="text-center py-5">
+    <mat-icon class="text-muted" style="font-size: 64px; height: 64px; width: 64px;">inventory_2</mat-icon>
+    <h3 class="mt-3">No products yet</h3>
+    <p class="text-muted">Start by adding your first product to the inventory</p>
+    <button class="btn btn-primary" (click)="openAddProduct()">
+      <mat-icon class="me-2">add</mat-icon>
+      Add Product
+    </button>
   </div>
 </div>

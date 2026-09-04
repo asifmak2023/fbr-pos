@@ -49,6 +49,24 @@ export interface ScenarioTestSummary {
   }>;
 }
 
+export interface TestAllResult {
+  scenario_code: string;
+  name: string;
+  test_status: string;
+  fbr_invoice_number?: string;
+  error_message?: string;
+  fbr_response?: any;
+  submission_timestamp?: string;
+  _show?: boolean;
+}
+
+export interface TestAllResponse {
+  submitted: number;
+  passed: number;
+  failed: number;
+  results: TestAllResult[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -59,9 +77,7 @@ export class FbrScenarioService {
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
+    return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
   }
 
   getScenarios(enabledOnly: boolean = false): Observable<FBRScenario[]> {
@@ -75,6 +91,10 @@ export class FbrScenarioService {
 
   testScenario(testRequest: FBRScenarioTestRequest): Observable<FBRScenarioTestResponse> {
     return this.http.post<FBRScenarioTestResponse>(`${this.apiUrl}test`, testRequest, { headers: this.getHeaders() });
+  }
+
+  testAllScenarios(): Observable<TestAllResponse> {
+    return this.http.post<TestAllResponse>(`${this.apiUrl}test-all`, {}, { headers: this.getHeaders() });
   }
 
   getTestSummary(): Observable<ScenarioTestSummary> {

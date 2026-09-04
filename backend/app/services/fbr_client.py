@@ -113,7 +113,6 @@ class FBRClient:
             "buyerAddress": buyer_address,
             "buyerRegistrationType": buyer_reg_type,
             "invoiceRefNo": "",
-            "scenarioId": scenario_id,  # Dynamic scenario ID
             "items": items
         }
         return payload
@@ -130,26 +129,112 @@ class FBRClient:
         return self._post_to_fbr(payload, f"sale {sale.id}")
 
     def post_invoice_data(self, invoice_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Send raw invoice data to FBR and return the response (for scenario testing)."""
+        """Send raw scenario invoice data to FBR.
+
+        The PDF sample payloads use placeholder seller credentials (e.g. "8885801",
+        "Company 8").  The FBR token is bound to the real seller NTN registered on
+        IRIS, so we must replace sellerNTNCNIC / sellerBusinessName with the values
+        from the environment before submitting – everything else (buyer, items, rates,
+        hsCode, saleType, …) is kept exactly as the PDF specifies.
+        """
+        import copy
+
         if not invoice_data:
             logger.error("No invoice data provided")
             return {"error": "No invoice data provided", "statusCode": "99"}
-        
-        logger.info(f"Sending invoice data to FBR for scenario {invoice_data.get('scenarioId', 'unknown')}")
-        return self._post_to_fbr(invoice_data, f"scenario {invoice_data.get('scenarioId', 'unknown')}")
+
+        seller_ntn  = os.getenv("FBR_SELLER_NTN")
+        seller_name = os.getenv("FBR_SELLER_NAME")
+
+        if not seller_ntn:
+            return {
+                "error": "FBR_SELLER_NTN is not set in environment. "
+                         "Set it to your registered NTN/CNIC in the .env file.",
+                "statusCode": "99",
+                "httpStatus": 0,
+            }
+
+        # Deep-copy so nested item dicts from the DB are not mutated or sent stale
+        payload = copy.deepcopy(invoice_data)
+        payload["sellerNTNCNIC"] = seller_ntn
+        if seller_name:
+            payload["sellerBusinessName"] = seller_name
+
+        # Always use today's date — FBR/IRIS only processes invoices within the
+        # current tax period; seed-file dates are static and will eventually fall
+        # outside the accepted window, causing IRIS to show "Pending" indefinitely.
+        payload["invoiceDate"] = datetime.utcnow().strftime("%Y-%m-%d")
+
+        scenario_id = payload.get("scenarioId", "unknown")
+        logger.info(
+            "Submitting scenario %s with sellerNTNCNIC=%s date=%s",
+            scenario_id, seller_ntn, payload["invoiceDate"],
+        )
+        return self._post_to_fbr(payload, f"scenario {scenario_id}")
 
     def _post_to_fbr(self, payload: Dict[str, Any], context: str) -> Dict[str, Any]:
-        """Internal method to post payload to FBR."""
+        """Post payload to FBR and always return a dict – never raise on HTTP errors.
+
+        The caller decides success/failure by inspecting the returned dict, not
+        by catching exceptions.  We capture the full response body on every
+        non-2xx status so the caller (and the frontend) can see what FBR said.
+        """
+        import re as _re
         try:
-            with httpx.Client(timeout=30.0) as client:
+            with httpx.Client(timeout=60.0) as client:
                 response = client.post(self.base_url, json=payload, headers=self.headers)
-                response.raise_for_status()
-                data = response.json()
-                logger.info("FBR request completed for %s with HTTP %s", context, response.status_code)
+                http_status = response.status_code
+                logger.info("FBR HTTP %s for %s", http_status, context)
+
+                # FBR sometimes returns malformed JSON with trailing commas before
+                # closing braces/brackets.  Strip them before parsing.
+                raw_text = response.text
+                try:
+                    data = response.json()
+                except Exception:
+                    try:
+                        cleaned = _re.sub(r',\s*([}\]])', r'\1', raw_text)
+                        data = json.loads(cleaned)
+                    except Exception:
+                        data = {"rawBody": raw_text}
+
+                # Promote validationResponse fields to the top level so that
+                # _submit_and_record can find invoiceNumber / errorCode easily.
+                vr = data.get("validationResponse")
+                if isinstance(vr, dict):
+                    item_statuses = vr.get("invoiceStatuses") or []
+                    # Copy invoiceNumber from any item that has one
+                    for item_status in item_statuses:
+                        if item_status.get("invoiceNo"):
+                            data.setdefault("invoiceNumber", str(item_status["invoiceNo"]))
+                    # Propagate error info
+                    data.setdefault("errorCode", None)
+                    for item_status in item_statuses:
+                        if item_status.get("errorCode"):
+                            data["errorCode"] = item_status["errorCode"]
+                            data["errorDescription"] = item_status.get("error", "")
+                            break
+                    # Top-level success check: statusCode "00" means success
+                    if vr.get("statusCode") == "00" and not data.get("invoiceNumber"):
+                        inv_no = vr.get("invoiceNumber") or vr.get("invoiceNo")
+                        if inv_no:
+                            data["invoiceNumber"] = str(inv_no)
+
+                # Attach the HTTP status so callers can log it
+                data["httpStatus"] = http_status
+
+                if http_status >= 400:
+                    # Preserve whatever FBR returned; add a top-level error key
+                    # if one isn't already present so our success check works.
+                    if "error" not in data:
+                        data["error"] = f"HTTP {http_status}: {response.text[:500]}"
+                    logger.error("FBR error for %s: HTTP %s – %s", context, http_status, response.text[:500])
+
                 return data
-        except httpx.HTTPStatusError as e:
-            logger.error("FBR HTTP error for %s: HTTP %s", context, e.response.status_code)
-            return {"error": "FBR returned an HTTP error", "statusCode": "99", "details": e.response.text, "httpStatus": e.response.status_code}
+
+        except httpx.TimeoutException as e:
+            logger.error("FBR timeout for %s: %s", context, e)
+            return {"error": f"Request timed out: {e}", "statusCode": "99", "httpStatus": 0}
         except Exception as e:
-            logger.error(f"FBR client error for {context}: {e}")
-            return {"error": str(e), "statusCode": "99"}
+            logger.error("FBR client error for %s: %s", context, e)
+            return {"error": str(e), "statusCode": "99", "httpStatus": 0}
